@@ -45,18 +45,19 @@ public:
     explicit ObjectSelectionTool(QObject *parent = 0);
     ~ObjectSelectionTool();
 
-    void activate(MapScene *scene);
-    void deactivate(MapScene *scene);
+    void activate(MapScene *scene) override;
+    void deactivate(MapScene *scene) override;
 
-    void keyPressed(QKeyEvent *);
-    void mouseEntered();
+    void keyPressed(QKeyEvent *) override;
+    void mouseEntered() override;
+    void mouseLeft() override;
     void mouseMoved(const QPointF &pos,
-                    Qt::KeyboardModifiers modifiers);
-    void mousePressed(QGraphicsSceneMouseEvent *event);
-    void mouseReleased(QGraphicsSceneMouseEvent *event);
-    void modifiersChanged(Qt::KeyboardModifiers modifiers);
+                    Qt::KeyboardModifiers modifiers) override;
+    void mousePressed(QGraphicsSceneMouseEvent *event) override;
+    void mouseReleased(QGraphicsSceneMouseEvent *event) override;
+    void modifiersChanged(Qt::KeyboardModifiers modifiers) override;
 
-    void languageChanged();
+    void languageChanged() override;
 
 private slots:
     void updateHandles();
@@ -104,6 +105,7 @@ private:
     void setMode(Mode mode);
     void saveSelectionState();
 
+    void updateHoveredItem(const QPointF &pos);
     void refreshCursor();
 
     QPointF snapToGrid(const QPointF &pos,

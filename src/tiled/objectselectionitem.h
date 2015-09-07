@@ -48,6 +48,7 @@ public:
 
 private slots:
     void selectedObjectsChanged();
+    void hoveredMapObjectChanged(MapObject *object, MapObject *previous);
     void mapChanged();
     void layerChanged(int index);
     void syncOverlayItems(const QList<MapObject *> &objects);

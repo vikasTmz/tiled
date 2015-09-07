@@ -78,6 +78,7 @@ Preferences::Preferences()
     mUseOpenGL = boolValue("OpenGL");
     mObjectLabelVisibility = static_cast<ObjectLabelVisiblity>
             (intValue("ObjectLabelVisibility", AllObjectLabels));
+    mLabelForHoveredObject = boolValue("LabelForHoveredObject", false);
     mSettings->endGroup();
 
     // Retrieve defined object types
@@ -134,6 +135,16 @@ void Preferences::setObjectLabelVisibility(ObjectLabelVisiblity visibility)
     mObjectLabelVisibility = visibility;
     mSettings->setValue(QLatin1String("Interface/ObjectLabelVisibility"), visibility);
     emit objectLabelVisibilityChanged(visibility);
+}
+
+void Preferences::setLabelForHoveredObject(bool enabled)
+{
+    if (mLabelForHoveredObject == enabled)
+        return;
+
+    mLabelForHoveredObject = enabled;
+    mSettings->setValue(QLatin1String("Interface/LabelForHoveredObject"), enabled);
+    emit labelForHoveredObjectChanged(enabled);
 }
 
 void Preferences::setShowGrid(bool showGrid)

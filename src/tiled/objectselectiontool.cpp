@@ -384,6 +384,8 @@ void ObjectSelectionTool::deactivate(MapScene *scene)
     disconnect(scene, SIGNAL(selectedObjectItemsChanged()),
                this, SLOT(updateHandles()));
 
+    mapDocument()->setHoveredMapObject(nullptr);
+
     AbstractObjectTool::deactivate(scene);
 }
 
@@ -442,30 +444,17 @@ void ObjectSelectionTool::mouseEntered()
 {
 }
 
+void ObjectSelectionTool::mouseLeft()
+{
+    mapDocument()->setHoveredMapObject(nullptr);
+}
+
 void ObjectSelectionTool::mouseMoved(const QPointF &pos,
                                      Qt::KeyboardModifiers modifiers)
 {
     AbstractObjectTool::mouseMoved(pos, modifiers);
 
-    // Update the hovered item (for mouse cursor)
-    {
-        RotateHandle *hoveredRotateHandle = nullptr;
-        ResizeHandle *hoveredResizeHandle = nullptr;
-        MapObjectItem *hoveredObjectItem = nullptr;
-
-        if (QGraphicsView *view = mapScene()->views().first()) {
-            QGraphicsItem *hoveredItem = mapScene()->itemAt(pos,
-                                                            view->transform());
-
-            hoveredRotateHandle = dynamic_cast<RotateHandle*>(hoveredItem);
-            hoveredResizeHandle = dynamic_cast<ResizeHandle*>(hoveredItem);
-        }
-
-        if (!hoveredRotateHandle && !hoveredResizeHandle)
-            hoveredObjectItem = topMostObjectItemAt(pos);
-
-        mHoveredObjectItem = hoveredObjectItem;
-    }
+    updateHoveredItem(pos);
 
     if (mAction == NoAction && mMousePressed) {
         QPoint screenPos = QCursor::pos();
@@ -604,6 +593,7 @@ void ObjectSelectionTool::mouseReleased(QGraphicsSceneMouseEvent *event)
     mClickedRotateHandle = nullptr;
     mClickedResizeHandle = nullptr;
 
+    updateHoveredItem(event->scenePos());
     refreshCursor();
 }
 
@@ -1346,6 +1336,32 @@ void ObjectSelectionTool::saveSelectionState()
         };
         mMovingObjects.append(object);
     }
+}
+
+void ObjectSelectionTool::updateHoveredItem(const QPointF &pos)
+{
+    RotateHandle *hoveredRotateHandle = nullptr;
+    ResizeHandle *hoveredResizeHandle = nullptr;
+    MapObjectItem *hoveredObjectItem = nullptr;
+
+    if (QGraphicsView *view = mapScene()->views().first()) {
+        QGraphicsItem *hoveredItem = mapScene()->itemAt(pos,
+                                                        view->transform());
+
+        hoveredRotateHandle = dynamic_cast<RotateHandle*>(hoveredItem);
+        hoveredResizeHandle = dynamic_cast<ResizeHandle*>(hoveredItem);
+    }
+
+    if (!hoveredRotateHandle && !hoveredResizeHandle)
+        hoveredObjectItem = topMostObjectItemAt(pos);
+
+    mHoveredObjectItem = hoveredObjectItem;
+
+    MapObject *hoveredObject = nullptr;
+    if (mHoveredObjectItem && mAction == NoAction)
+        hoveredObject = mHoveredObjectItem->mapObject();
+
+    mapDocument()->setHoveredMapObject(hoveredObject);
 }
 
 void ObjectSelectionTool::refreshCursor()

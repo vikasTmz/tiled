@@ -66,6 +66,7 @@ MapDocument::MapDocument(Map *map, const QString &fileName):
     mMap(map),
     mLayerModel(new LayerModel(this)),
     mCurrentObject(map),
+    mHoveredMapObject(nullptr),
     mRenderer(0),
     mMapObjectModel(new MapObjectModel(this)),
     mTerrainModel(new TerrainModel(this, this)),
@@ -667,6 +668,16 @@ QList<Object*> MapDocument::currentObjects() const
     return objects;
 }
 
+void MapDocument::setHoveredMapObject(MapObject *object)
+{
+    if (mHoveredMapObject == object)
+        return;
+
+    MapObject *previous = mHoveredMapObject;
+    mHoveredMapObject = object;
+    emit hoveredMapObjectChanged(object, previous);
+}
+
 /**
  * Makes sure the all tilesets which are used at the given \a map will be
  * present in the map document.
@@ -774,6 +785,9 @@ void MapDocument::emitTilesetChanged(Tileset *tileset)
  */
 void MapDocument::onObjectsRemoved(const QList<MapObject*> &objects)
 {
+    if (mHoveredMapObject && objects.contains(mHoveredMapObject))
+        setHoveredMapObject(nullptr);
+
     deselectObjects(objects);
     emit objectsRemoved(objects);
 }
@@ -837,6 +851,10 @@ void MapDocument::onLayerAboutToBeRemoved(int index)
     // Deselect any objects on this layer when necessary
     if (ObjectGroup *og = dynamic_cast<ObjectGroup*>(layer))
         deselectObjects(og->objects());
+
+    if (mHoveredMapObject && mHoveredMapObject->objectGroup() == layer)
+        setHoveredMapObject(nullptr);
+
     emit layerAboutToBeRemoved(index);
 }
 
@@ -866,10 +884,10 @@ void MapDocument::deselectObjects(const QList<MapObject *> &objects)
     // Unset the current object when it was part of this list of objects
     if (mCurrentObject && mCurrentObject->typeId() == Object::MapObjectType)
         if (objects.contains(static_cast<MapObject*>(mCurrentObject)))
-            setCurrentObject(0);
+            setCurrentObject(nullptr);
 
     int removedCount = 0;
-    foreach (MapObject *object, objects)
+    for (MapObject *object : objects)
         removedCount += mSelectedObjects.removeAll(object);
 
     if (removedCount > 0)

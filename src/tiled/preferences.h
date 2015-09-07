@@ -66,6 +66,9 @@ public:
     ObjectLabelVisiblity objectLabelVisibility() const;
     void setObjectLabelVisibility(ObjectLabelVisiblity visiblity);
 
+    bool labelForHoveredObject() const;
+    void setLabelForHoveredObject(bool enabled);
+
     Map::LayerDataFormat layerDataFormat() const;
     void setLayerDataFormat(Map::LayerDataFormat layerDataFormat);
 
@@ -145,6 +148,7 @@ signals:
     void highlightCurrentLayerChanged(bool highlight);
     void showTilesetGridChanged(bool showTilesetGrid);
     void objectLabelVisibilityChanged(ObjectLabelVisiblity);
+    void labelForHoveredObjectChanged(bool enabled);
 
     void useOpenGLChanged(bool useOpenGL);
 
@@ -179,6 +183,7 @@ private:
     bool mShowTilesetGrid;
     bool mOpenLastFilesOnStartup;
     ObjectLabelVisiblity mObjectLabelVisibility;
+    bool mLabelForHoveredObject;
 
     Map::LayerDataFormat mLayerDataFormat;
     Map::RenderOrder mMapRenderOrder;
@@ -204,6 +209,11 @@ private:
 inline Preferences::ObjectLabelVisiblity Preferences::objectLabelVisibility() const
 {
     return mObjectLabelVisibility;
+}
+
+inline bool Preferences::labelForHoveredObject() const
+{
+    return mLabelForHoveredObject;
 }
 
 inline QDate Preferences::firstRun() const
