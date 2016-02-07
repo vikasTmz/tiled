@@ -999,6 +999,8 @@ void PropertyBrowser::removeProperties()
 
 void PropertyBrowser::updateProperties()
 {
+    Q_ASSERT(mObject);
+
     mUpdating = true;
 
     switch (mObject->typeId()) {

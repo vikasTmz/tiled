@@ -193,6 +193,7 @@ public:
     MapObjectLabel(MapObject *object, QGraphicsItem *parent = nullptr)
         : QGraphicsItem(parent)
         , mObject(object)
+        , mColor(MapObjectItem::objectColor(mObject))
     {
         setFlags(QGraphicsItem::ItemIgnoresTransformations |
                  QGraphicsItem::ItemIgnoresParentOpacity);
@@ -208,6 +209,7 @@ public:
 private:
     QRectF mBoundingRect;
     MapObject *mObject;
+    QColor mColor;
 };
 
 void MapObjectLabel::syncWithMapObject(MapRenderer *renderer)
@@ -242,6 +244,13 @@ void MapObjectLabel::syncWithMapObject(MapRenderer *renderer)
         prepareGeometryChange();
         mBoundingRect = boundingRect;
     }
+
+    // Maybe update color
+    QColor color = MapObjectItem::objectColor(mObject);
+    if (mColor != color) {
+        mColor = color;
+        update();
+    }
 }
 
 QRectF MapObjectLabel::boundingRect() const
@@ -253,13 +262,11 @@ void MapObjectLabel::paint(QPainter *painter,
                            const QStyleOptionGraphicsItem *,
                            QWidget *)
 {
-    QColor color = MapObjectItem::objectColor(mObject);
-
     painter->setRenderHint(QPainter::Antialiasing);
     painter->setBrush(Qt::black);
     painter->setPen(Qt::NoPen);
     painter->drawRoundedRect(mBoundingRect.translated(1, 1), 4, 4);
-    painter->setBrush(color);
+    painter->setBrush(mColor);
     painter->drawRoundedRect(mBoundingRect, 4, 4);
 
     QPointF textPos(-(mBoundingRect.width() - labelMargin*4) / 2, -labelDistance);
@@ -301,8 +308,13 @@ ObjectSelectionItem::ObjectSelectionItem(MapDocument *mapDocument)
     connect(mapDocument, &MapDocument::objectsRemoved,
             this, &ObjectSelectionItem::objectsRemoved);
 
-    connect(Preferences::instance(), &Preferences::objectLabelVisibilityChanged,
+    Preferences *prefs = Preferences::instance();
+
+    connect(prefs, &Preferences::objectLabelVisibilityChanged,
             this, &ObjectSelectionItem::objectLabelVisibilityChanged);
+
+    connect(prefs, &Preferences::objectTypesChanged,
+            this, &ObjectSelectionItem::updateObjectLabels);
 
     if (objectLabelVisibility() == Preferences::AllObjectLabels)
         addRemoveObjectLabels();
@@ -377,6 +389,14 @@ void ObjectSelectionItem::syncOverlayItems(const QList<MapObject*> &objects)
         if (MapObjectLabel *labelItem = mObjectLabels.value(object))
             labelItem->syncWithMapObject(renderer);
     }
+}
+
+// Necessary when the label colors might have changed
+void ObjectSelectionItem::updateObjectLabels()
+{
+    MapRenderer *renderer = mMapDocument->renderer();
+    for (MapObjectLabel *label : mObjectLabels)
+        label->syncWithMapObject(renderer);
 }
 
 void ObjectSelectionItem::objectsAdded(const QList<MapObject *> &objects)
