@@ -33,8 +33,8 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update           ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install qt5      ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew link qt5 --force ; fi
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq qt5-default qttools5-dev-tools zlib1g-dev cppcheck xvfb
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get update -qq ; fi
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get install -qq qt5-default qttools5-dev-tools zlib1g-dev cppcheck xvfb ; fi
   - qmake -version
 
 script:
@@ -43,8 +43,8 @@ script:
   - pushd tests/
   - qmake
   - make
-  - for test in `find -executable -type f`; do pushd `dirname $test`; xvfb-run -a ./`basename $test`||exit 1; popd; done
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then for test in `find -executable -type f`; do pushd `dirname $test`; xvfb-run -a ./`basename $test`||exit 1; popd; done ; fi
   - popd
 
 after_script:
-  - cppcheck --enable=all -q -Isrc/libtiled `git ls-files src/\*.cpp`
+  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then cppcheck --enable=all -q -Isrc/libtiled `git ls-files src/\*.cpp` ; fi
