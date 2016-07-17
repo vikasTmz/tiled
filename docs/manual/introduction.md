@@ -14,4 +14,21 @@ Other things worth mentioning are the support for adding custom map or tileset f
 
 ## Getting Started
 
+### Creating a New Map
+
+When launching Tiled for the first time, we are greeted with the following default window layout:
+
+  ![Tiled Window](images/introduction/tiled-window.png)
+
+There is a large gray area in the middle because no map is open yet. The first thing we'll do is to start a new map with _File -> New..._ (`Ctrl+N`). The following dialog will pop up:
+
+  ![New Map](images/introduction/tiled-new-map.png)
+
+Here, we choose the initial map size, tile size, orientation, tile layer format and tile render order (only supported for _Orthogonal_ maps). All of these things can be changed later as needed, so it's not important to get it all right the first time.
+
+After pressing _OK_, we'll see the tile grid 
+
+  ![New Tileset](images/introduction/tiled-new-tileset.png)
+
+
 *Most of the manual still needs to be written, including this section. Fortunately, there is a very nice [Tiled Map Editor Tutorial Series](http://www.gamefromscratch.com/post/2015/10/14/Tiled-Map-Editor-Tutorial-Series.aspx) on GamesFromScratch.com. In addition, the support for Tiled in various [engines and frameworks](../reference/support-for-tmx-maps.md) often comes with some usage information.*
