@@ -197,7 +197,6 @@ void TiledProxyStyle::drawControl(QStyle::ControlElement element,
     case CE_TabBarTabShape:
         painter->save();
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
-
             bool rtlHorTabs = (tab->direction == Qt::RightToLeft
                                && (tab->shape == QTabBar::RoundedNorth
                                    || tab->shape == QTabBar::RoundedSouth));
@@ -266,38 +265,43 @@ void TiledProxyStyle::drawControl(QStyle::ControlElement element,
                         getTabFrameColor(option->palette) :
                         option->palette.window().color();
 
+            if (!selected) {
+                tabFrameColor = option->palette.button().color().darker(116);
+            }
+
             QLinearGradient fillGradient(rect.topLeft(), rect.bottomLeft());
             QLinearGradient outlineGradient(rect.topLeft(), rect.bottomLeft());
             QPen outlinePen = outline.lighter(110);
             if (selected) {
                 fillGradient.setColorAt(0, tabFrameColor.lighter(104));
-                //                QColor highlight = option->palette.highlight().color();
-                //                if (option->state & State_HasFocus && option->state & State_KeyboardFocusChange) {
-                //                    fillGradient.setColorAt(0, highlight.lighter(130));
-                //                    outlineGradient.setColorAt(0, highlight.darker(130));
-                //                    fillGradient.setColorAt(0.14, highlight);
-                //                    outlineGradient.setColorAt(0.14, highlight.darker(130));
-                //                    fillGradient.setColorAt(0.1401, tabFrameColor);
-                //                    outlineGradient.setColorAt(0.1401, highlight.darker(130));
-                //                }
+
+                // colorful marker
+//                QColor highlight = option->palette.highlight().color();
+//                fillGradient.setColorAt(0, highlight.lighter(130));
+//                outlineGradient.setColorAt(0, highlight.darker(130));
+//                fillGradient.setColorAt(0.10, highlight);
+//                outlineGradient.setColorAt(0.10, highlight.darker(130));
+//                fillGradient.setColorAt(0.1001, tabFrameColor);
+//                outlineGradient.setColorAt(0.1001, highlight.darker(130));
+
                 fillGradient.setColorAt(1, tabFrameColor);
                 outlineGradient.setColorAt(1, outline);
                 outlinePen = QPen(outlineGradient, 1);
             } else {
-                fillGradient.setColorAt(0, tabFrameColor.darker(108));
-                fillGradient.setColorAt(0.85, tabFrameColor.darker(108));
+                fillGradient.setColorAt(0, tabFrameColor);
+                fillGradient.setColorAt(0.85, tabFrameColor);
                 fillGradient.setColorAt(1, tabFrameColor.darker(116));
             }
 
-            QRect drawRect = rect.adjusted(0, selected ? 0 : 2, 0, 3);
+            QRect drawRect = rect.adjusted(0, 0, 0, 3);
             painter->setPen(outlinePen);
             painter->save();
             painter->setClipRect(rect.adjusted(-1, -1, 1, selected ? -2 : -3));
             painter->setBrush(fillGradient);
-            painter->drawRoundedRect(drawRect.adjusted(0, 0, -1, -1), 2.0, 2.0);
+            painter->drawRect(drawRect.adjusted(0, 0, -1, -1));
             painter->setBrush(Qt::NoBrush);
             painter->setPen(innerContrastLine());
-            painter->drawRoundedRect(drawRect.adjusted(1, 1, -2, -1), 2.0, 2.0);
+            painter->drawRect(drawRect.adjusted(1, 1, -2, -1));
             painter->restore();
 
             if (selected) {
@@ -326,7 +330,7 @@ void TiledProxyStyle::drawComplexControl(ComplexControl control,
     QColor outline = getOutlineColor(option->palette);
 
     switch (control) {
-    case CC_ScrollBar:
+    case CC_ScrollBar:              // replaced for higher contrast and thinner slider
         painter->save();
         if (const QStyleOptionSlider *scrollBar = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             bool horizontal = scrollBar->orientation == Qt::Horizontal;
@@ -509,6 +513,9 @@ int TiledProxyStyle::pixelMetric(QStyle::PixelMetric metric,
     switch (metric) {
     case PM_MenuBarItemSpacing:
         return 0;                   // no space between menu bar items
+    case PM_TabBarTabShiftHorizontal:
+    case PM_TabBarTabShiftVertical:
+        return 0;                   // no shifting of tabs
     default:
         return QProxyStyle::pixelMetric(metric, option, widget);
     }
@@ -549,8 +556,7 @@ QRect TiledProxyStyle::subElementRect(QStyle::SubElement subElement, const QStyl
             bool selected = tab->state & State_Selected;
             int verticalShift = proxy()->pixelMetric(QStyle::PM_TabBarTabShiftVertical, tab, widget);
             int horizontalShift = proxy()->pixelMetric(QStyle::PM_TabBarTabShiftHorizontal, tab, widget);
-            int hpadding = proxy()->pixelMetric(QStyle::PM_TabBarTabHSpace, option, widget) / 2;
-            hpadding = qMax(hpadding, 4); //workaround KStyle returning 0 because they workaround an old bug in Qt
+            int hpadding = QStyleHelper::dpiScaled(4.);       // normally half the PM_TabBarTabHSpace
 
             bool verticalTabs = tab->shape == QTabBar::RoundedEast
                     || tab->shape == QTabBar::RoundedWest
