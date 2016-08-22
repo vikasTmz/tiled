@@ -10,7 +10,11 @@ QtGuiApplication {
     Depends { name: "translations" }
     Depends { name: "qtpropertybrowser" }
     Depends { name: "qtsingleapplication" }
-    Depends { name: "Qt"; submodules: ["widgets", "opengl"] }
+    Depends { name: "Qt.core" }
+    Depends { name: "Qt.widgets" }
+    Depends { name: "Qt.opengl"; condition: !useQOpenGLWidget }
+
+    property bool useQOpenGLWidget: Qt.core.versionMinor >= 7 && qbs.targetOS.contains("windows")
 
     property string sparkleDir: {
         if (qbs.architecture === "x86_64")
@@ -43,6 +47,8 @@ QtGuiApplication {
             defs.push("TILED_SPARKLE");
         if (project.linuxArchive)
             defs.push("TILED_LINUX_ARCHIVE");
+        if (useQOpenGLWidget)
+            defs.push("TILED_USE_QOPENGLWIDGET")
         return defs;
     }
 

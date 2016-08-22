@@ -14,6 +14,7 @@ Product {
 
     Depends { name: "cpp" }
     Depends { name: "Qt.core" }
+    Depends { name: "tiled" }
 
     Group {
         name: "Examples"
@@ -72,10 +73,12 @@ Product {
                 "Qt5Core" + postfix,
                 "Qt5Gui" + postfix,
                 "Qt5Network" + postfix,
-                "Qt5OpenGL" + postfix,
                 "Qt5Svg" + postfix,
                 "Qt5Widgets" + postfix,
             ];
+
+            if (tiled.useQOpenGLWidget)
+                list.push("Qt5OpenGL" + postfix)
 
             if (qbs.targetOS.contains("windows")) {
                 if (Qt.core.versionMinor < 7) {
