@@ -27,13 +27,12 @@ matrix:
       before_install:
         - sudo add-apt-repository --yes ppa:beineri/opt-qt562-trusty
         - sudo apt-get update -qq
-        - sudo apt-get -y install qt56base binutils zlib1g-dev libqt5opengl5-dev
-      script:
+        - sudo apt-get -y install qt56base qt56tools binutils zlib1g-dev libqt5opengl5-dev
         - source /opt/*/bin/qt*-env.sh
-        - qmake -v
+      script:
         - mkdir Tiled ; cd Tiled/
         - qmake ../tiled.pro
-        - make || true # make[1]: /opt/qt57/bin/lrelease: Command not found
+        - make
         - rm -rf src/
         - mv bin/* . && rm -r bin/ # Workaround for https://github.com/probonopd/linuxdeployqt/issues/14
         - cd ../
