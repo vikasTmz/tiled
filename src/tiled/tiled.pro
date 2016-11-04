@@ -7,7 +7,7 @@ TEMPLATE = app
 TARGET = tiled
 target.path = $${PREFIX}/bin
 INSTALLS += target
-win32 {
+win32|!isEmpty(TILED_LINUX_ARCHIVE) {
     DESTDIR = ../..
 } else {
     DESTDIR = ../../bin
