@@ -184,7 +184,7 @@ void MapObjectOutline::paint(QPainter *painter,
         QLineF(mBoundingRect.topRight(), mBoundingRect.bottomRight())
     };
 
-    QPen dashPen(Qt::DashLine);
+    QPen dashPen(QColor(0, 255, 0, 127), 3, Qt::DashLine);
     dashPen.setCosmetic(true);
     dashPen.setDashOffset(qMax(qreal(0), x()));
     painter->setPen(dashPen);
